@@ -1,0 +1,152 @@
+
+
+-- Création des vues matérialisées utilisées pour les rapports de synthèses automatiques dans Grafana
+-- Elles sont stockées dans le schéma grafana
+-- Elles sont rafraichies avant le lancement des scripts R de génération des rapports automatiques
+-- Ces vues matérialisées sont indexées pour optimiser les temps de réponse des requêtes 
+
+-- /!\ attention point de vigilance : 
+-- Nous utilisons le champs additional_data->>'desc_source' de la table gn_imports.t_imports pour stocker une description alternative de la source 7087 (JDD importé par le module d'import) 
+-- Il est important de vérifier que ce champs est bien renseigné pour chaque import de la source 7087
+-- ID source 7087 est à changer en fonction de VOTRE id_source pour les imports via le module d'import de Geonature
+-- Valeur a remplacer dans la VM grafana.mv_source_detail ligne 68 et 80 Mais aussi dans le rapport.Rmd dans les requêtes SQL de selection
+
+-- Attention présence la table :  grafana.t_orb_eee_aura_2025 eee nécéssaire (qui indique les EEE autorisées en AuRA en 2025)
+
+
+-- création du schema grafana s'il n'existe pas
+create schema if not exists grafana;
+
+
+-------- VM utilisé dans les scripts de rapport de synthèses automatiques
+drop materialized view if exists grafana.mv_source_geom_info;
+create materialized view grafana.mv_source_geom_info as
+select la.id_area
+      , la.geom_4326
+      , s.id_source
+      , s.id_import
+      , concat(s.id_source,'_',s.id_import) as id_source_news
+      , count(distinct s.id_synthese) as nb_data
+      , array_agg(distinct t.lb_nom)  as tab_lb_nom
+from gn_synthese.synthese s
+         left join taxonomie.taxref t on t.cd_nom = s.cd_nom
+         left join gn_synthese.cor_area_synthese cas on cas.id_synthese = s.id_synthese
+         left join ref_geo.l_areas la on la.id_area = cas.id_area
+         left join gn_imports.t_imports ti on s.id_import = ti.id_import
+where la.id_type = ref_geo.get_id_area_type('M5'::character varying)
+group by la.id_area, la.geom_4326, s.id_source, s.id_import, concat(s.id_source,'_',s.id_import) ;
+
+create index on grafana.mv_source_geom_info (id_source_news);
+
+
+
+--identification des JDD des sources
+drop materialized view if exists grafana.mv_source_dataset;
+create materialized view grafana.mv_source_dataset as
+(
+select distinct s.id_source
+              , s.id_import
+              , concat(s.id_source,'_',s.id_import) as id_source_news
+              , td.id_acquisition_framework
+              , td.unique_dataset_id
+              ,	td.dataset_name
+              , td.dataset_desc
+              , td.id_dataset
+              , count(s.id_synthese) as nb_data
+from gn_synthese.synthese s
+         join gn_meta.t_datasets td on td.id_dataset = s.id_dataset
+         left join gn_imports.t_imports ti on s.id_import = ti.id_import
+group by id_source, s.id_import, td.unique_dataset_id, concat(s.id_source,'_',s.id_import), td.id_acquisition_framework , td.dataset_name, td.dataset_desc, td.id_dataset, s.id_dataset
+    );
+
+
+
+-- identification des détails par source
+drop materialized view if exists grafana.mv_source_detail;
+create materialized view grafana.mv_source_detail as
+select s.id_source
+      , s.id_import
+      , concat(s.id_source,'_',s.id_import) as id_source_news
+      , ts.name_source
+      , ts.desc_source
+      , case when s.id_source = 7087 then (ti.additional_data->>'desc_source')::text
+           else ts.desc_source end as desc_source_final
+      , count(s.id_synthese) AS nb_data
+      , t.cd_ref
+      , t.id_rang
+      , t.group2_inpn
+from gn_synthese.synthese s
+         join taxonomie.taxref t on t.cd_nom = s.cd_nom
+         join gn_synthese.t_sources ts on s.id_source = ts.id_source
+         left join gn_imports.t_imports ti on s.id_import = ti.id_import
+group by s.id_source , s.id_import, concat(s.id_source,'_',s.id_import),
+         ts.name_source, ts.desc_source, t.cd_ref, t.id_rang, t.group2_inpn,
+          case when s.id_source = 7087 then (ti.additional_data->>'desc_source')::text
+           else ts.desc_source end;
+
+create index on grafana.mv_source_detail (id_source);
+create index on grafana.mv_source_detail  (id_source_news);
+
+create index on grafana.mv_source_detail (cd_ref);
+create index on grafana.mv_source_detail (id_rang);
+create index on grafana.mv_source_detail (group2_inpn);
+
+
+
+-- identification des CA par source
+drop materialized view if exists grafana.mv_source_acquisition_framework;
+create materialized view grafana.mv_source_acquisition_framework as
+(
+select distinct s.id_source
+              , s.id_import
+              , concat(s.id_source,'_',s.id_import) as id_source_news
+              , ca.acquisition_framework_name
+              , ca.acquisition_framework_desc
+              , ca.unique_acquisition_framework_id
+              , ca.id_acquisition_framework
+              , count(s.id_synthese) as nb_data
+from gn_synthese.synthese s
+         join gn_meta.t_datasets td on td.id_dataset = s.id_dataset
+         left join gn_imports.t_imports ti on s.id_import = ti.id_import
+         join gn_meta.t_acquisition_frameworks ca on td.id_acquisition_framework = ca.id_acquisition_framework
+group by id_source, s.id_import, concat(s.id_source,'_',s.id_import), ca.acquisition_framework_name, ca.acquisition_framework_desc, ca.unique_acquisition_framework_id, ca.id_acquisition_framework    );
+
+create index on grafana.mv_source_acquisition_framework (id_source);
+create index on grafana.mv_source_acquisition_framework (id_source_news);
+
+
+-- identification des infos taxonomique par source
+drop materialized view if exists grafana.mv_source_niveau_taxonomique;
+create materialized view grafana.mv_source_niveau_taxonomique as (
+    select s.id_source
+        , s.id_import
+        , concat(s.id_source,'_',s.id_import) as id_source_news
+        , bib.nom_rang
+        , count(s.id_synthese) as nb_data
+    from gn_synthese.synthese s
+        join taxonomie.taxref t on t.cd_nom=s.cd_nom
+        join taxonomie.bib_taxref_rangs bib on bib.id_rang=t.id_rang
+        left join gn_imports.t_imports ti on s.id_import = ti.id_import
+    group by s.id_source, s.id_import, concat(s.id_source,'_',s.id_import) , bib.nom_rang
+);
+create index on grafana.mv_source_niveau_taxonomique (id_source);
+create index on grafana.mv_source_niveau_taxonomique (id_source_news);
+
+
+
+-- identification des infos temporelles par source
+drop materialized view if exists grafana.mv_source_info_temporelle;
+create materialized view grafana.mv_source_info_temporelle as (
+select  s.id_source
+      , s.id_import
+      , concat(s.id_source,'_',s.id_import) as id_source_news 
+	  , count(s.id_synthese) as nb_data
+	  , extract(year from s.date_min)  as annee
+	  , extract(month from s.date_min)  as mois
+from gn_synthese.synthese s 
+join taxonomie.taxref t on t.cd_nom = s.cd_nom 
+left join gn_imports.t_imports ti on s.id_import = ti.id_import
+group by s.id_source, s.id_import, concat(s.id_source,'_',s.id_import), extract(year from s.date_min), extract(month from s.date_min) 
+);
+create index on grafana.mv_source_info_temporelle  (id_source);
+create index on grafana.mv_source_info_temporelle  (id_source_news);
