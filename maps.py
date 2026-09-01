@@ -27,12 +27,14 @@ from formatting import format_number
 
 logger = logging.getLogger(__name__)
 
-TILES = "CartoDB positron"
+
 DEFAULT_CENTER = (45.444, 3.75)  # Centre approximatif de l'Auvergne-Rhône-Alpes
+TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+TILES_ATTR = "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
 
 
 def _empty_map(message: str = "Pas de données à afficher") -> str:
-    m = folium.Map(location=DEFAULT_CENTER, zoom_start=6, tiles=TILES)
+    m = folium.Map(location=DEFAULT_CENTER, zoom_start=6, tiles=TILES, attr=TILES_ATTR)
     folium.Marker(DEFAULT_CENTER, tooltip=message, icon=folium.Icon(color="lightgray")).add_to(m)
     return m._repr_html_()
 
@@ -47,7 +49,7 @@ def map_maillage(df: pd.DataFrame) -> str:
     colormap = cm.linear.PuRd_09.scale(values.min(), values.max())
     colormap.caption = "Nombre de données"
 
-    m = folium.Map(tiles=TILES)
+    m = folium.Map(tiles=TILES, attr=TILES_ATTR)
     bounds: list[list[float]] = []
 
     for _, row in df.iterrows():
@@ -117,7 +119,7 @@ def map_points(
     if df.empty:
         return _empty_map(empty_message)
 
-    m = folium.Map(tiles=TILES)
+    m = folium.Map(tiles=TILES, attr=TILES_ATTR)
     target = MarkerCluster().add_to(m) if cluster else m
 
     popup_fields = popup_fields or []

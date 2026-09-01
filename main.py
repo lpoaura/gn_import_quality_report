@@ -1,7 +1,7 @@
 """
 main.py
 =======
-Point d'entrée du programme. Équivalent Python de `RScripts/traitement_analyses.R` :
+Point d'entrée du programme. 
 
   1. Rafraîchit les vues matérialisées `grafana.mv_*`
   2. Récupère la liste des sources à traiter (`gn_imports.v_c_rapport_generated`)

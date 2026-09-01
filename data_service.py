@@ -101,7 +101,6 @@ class SourceReportData:
     def show_data_mois_hors_plage(self) -> bool:
         return self.nb_data_mois_hors_plage > 0
 
-
     @property
     def nb_nouvelles_eee(self) -> int:
         if self.data_eee_synthese.empty or "nouvelle_presence" not in self.data_eee_synthese:

@@ -109,15 +109,16 @@ def _build_context(data: SourceReportData) -> dict:
     )
 
     # -- section 4 : répartition taxonomique ---------------------------------
+    data_esp_grouped = charts.group_small_categories(data.data_repartition_esp, "groupe_taxo", "nb_esp")
     context["chart_esp_taxo"] = (
-        charts.chart_donut(data.data_repartition_esp, "groupe_taxo", "nb_esp", "chart_esp_taxo")
-        if not data.data_repartition_esp.empty
-        else ""
+        charts.chart_donut(data_esp_grouped, "groupe_taxo", "nb_esp", "chart_esp_taxo", charts.COULEURS_TAXO)
+        if not data.data_repartition_esp.empty else ""
     )
+
+    data_data_grouped = charts.group_small_categories(data.data_repartition_data, "groupe_taxo", "nb_data")
     context["chart_data_taxo"] = (
-        charts.chart_donut(data.data_repartition_data, "groupe_taxo", "nb_data", "chart_data_taxo")
-        if not data.data_repartition_data.empty
-        else ""
+        charts.chart_donut(data_data_grouped, "groupe_taxo", "nb_data", "chart_data_taxo", charts.COULEURS_TAXO)
+        if not data.data_repartition_data.empty else ""
     )
     tab_rang_tax_fmt = data.tab_rang_tax.copy()
     if not tab_rang_tax_fmt.empty:
@@ -139,13 +140,13 @@ def _build_context(data: SourceReportData) -> dict:
     if not tab_ca_fmt.empty:
         tab_ca_fmt["nb_data"] = tab_ca_fmt["nb_data"].apply(format_number)
         tab_ca_fmt = tab_ca_fmt.rename(columns={"nb_data": "Nb. de données"})
-    context["tab_ca"] = tables.render_static_table(tab_ca_fmt)
+    context["tab_ca"] = tables.render_interactive_table(tab_ca_fmt)
 
     tab_jdd_fmt = data.tab_jdd.copy()
     if not tab_jdd_fmt.empty:
         tab_jdd_fmt["nb_data"] = tab_jdd_fmt["nb_data"].apply(format_number)
         tab_jdd_fmt = tab_jdd_fmt.rename(columns={"nb_data": "Nb. de données"})
-    context["tab_jdd"] = tables.render_static_table(tab_jdd_fmt)
+    context["tab_jdd"] = tables.render_interactive_table(tab_jdd_fmt)
 
     # -- section 6 : validation -------------------------------------------------
     context["chart_validation"] = (
