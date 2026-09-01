@@ -1,0 +1,276 @@
+/*
+  report.css
+  ==========
+  Identité visuelle du rapport de synthèse.
+
+  Palette : papier naturel + violet ORB (couleur historique du rapport R,
+  conservée) + vert "terrain" pour les indicateurs positifs + orange pour
+  les points de vigilance. Typographie : Fraunces (titres, texture
+  éditoriale/carnet de terrain) + Inter (corps de texte et données,
+  très lisible en tableau).
+*/
+
+:root {
+  --color-bg: #f6f5f0;
+  --color-surface: #ffffff;
+  --color-ink: #23261f;
+  --color-ink-soft: #565c4f;
+  --color-line: #dedad0;
+  --color-brand: #6f2a94;
+  --color-brand-soft: #f1e7f6;
+  --color-accent-green: #3f7d3f;
+  --color-accent-orange: #c9660a;
+  --color-accent-red: #b3372c;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+h1, h2, h3 {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
+  color: var(--color-ink);
+  letter-spacing: -0.01em;
+}
+
+a { color: var(--color-brand); }
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 0;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* -- En-tête ------------------------------------------------------------ */
+
+.report-header {
+  padding: 48px 56px 32px;
+  border-bottom: 1px solid var(--color-line);
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.report-header img { width: 120px; height: auto; }
+
+.report-header .titles h1 {
+  font-size: 2rem;
+  margin: 0 0 6px;
+}
+
+.report-header .subtitle {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.15rem;
+  color: var(--color-brand);
+  margin: 0 0 10px;
+}
+
+.report-header .meta {
+  color: var(--color-ink-soft);
+  font-size: 0.92rem;
+}
+
+/* -- Navigation latérale (sommaire) -------------------------------------- */
+
+.toc {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  padding: 40px 24px;
+  border-right: 1px solid var(--color-line);
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.toc-title {
+  text-transform: none;
+  font-size: 0.8rem;
+  color: var(--color-ink-soft);
+  margin-bottom: 14px;
+}
+
+.toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc li { margin-bottom: 4px; }
+
+.toc a {
+  display: block;
+  padding: 7px 10px;
+  border-radius: 4px;
+  color: var(--color-ink);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+
+.toc a:hover { background: var(--color-brand-soft); color: var(--color-brand); }
+
+/* -- Contenu principal ---------------------------------------------------- */
+
+.content { padding: 40px 56px 100px; min-width: 0; }
+
+.intro {
+  max-width: 68ch;
+  color: var(--color-ink-soft);
+}
+
+.contact-callout {
+  border-left: 3px solid var(--color-brand);
+  background: var(--color-brand-soft);
+  padding: 14px 20px;
+  margin: 24px 0;
+  color: var(--color-brand);
+  font-size: 0.98rem;
+}
+
+section.report-section {
+  margin-top: 56px;
+  scroll-margin-top: 24px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  border-bottom: 1px solid var(--color-line);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.section-heading .num {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.6rem;
+  color: var(--color-brand);
+  min-width: 34px;
+}
+
+.section-heading h2 { margin: 0; font-size: 1.4rem; }
+
+.section-intro { color: var(--color-ink-soft); max-width: 70ch; margin-bottom: 20px; }
+
+h3.subsection { font-size: 1.08rem; margin: 30px 0 12px; }
+
+/* -- KPI (section 1) ------------------------------------------------------ */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.kpi-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-top: 3px solid var(--color-brand);
+  padding: 18px 18px 14px;
+}
+
+.kpi-value {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.9rem;
+  color: var(--color-brand);
+  display: block;
+}
+
+.kpi-label { color: var(--color-ink-soft); font-size: 0.86rem; }
+
+/* -- Alertes --------------------------------------------------------------- */
+
+.alert {
+  padding: 14px 18px;
+  border-left: 3px solid var(--color-accent-orange);
+  background: #fdf3e8;
+  color: #7a4408;
+  margin: 18px 0;
+  font-size: 0.95rem;
+}
+
+.alert.alert-ok {
+  border-left-color: var(--color-accent-green);
+  background: #edf5ea;
+  color: #2c5a2c;
+}
+
+/* -- Graphiques / cartes --------------------------------------------------- */
+
+.chart-block, .map-block {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.map-block iframe, .map-block > div { width: 100%; }
+
+/* -- Tableaux --------------------------------------------------------------- */
+
+table.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 10px 0 24px;
+}
+
+table.report-table th {
+  text-align: left;
+  border-bottom: 2px solid var(--color-ink);
+  padding: 8px 10px;
+  font-weight: 600;
+  color: var(--color-ink);
+  background: var(--color-surface);
+}
+
+table.report-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--color-line);
+  color: var(--color-ink);
+}
+
+table.report-table tbody tr:hover { background: var(--color-brand-soft); }
+
+.table-empty { color: var(--color-ink-soft); font-style: italic; }
+
+.btn-download {
+  display: inline-block;
+  margin: 6px 0 20px;
+  padding: 9px 16px;
+  background: var(--color-brand);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  border-radius: 3px;
+}
+
+.btn-download:hover { background: #5a2277; }
+
+footer.report-footer {
+  border-top: 1px solid var(--color-line);
+  margin-top: 60px;
+  padding-top: 20px;
+  color: var(--color-ink-soft);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .toc { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--color-line); }
+  .report-header { flex-direction: column; align-items: flex-start; padding: 32px 24px; }
+  .content { padding: 24px; }
+}

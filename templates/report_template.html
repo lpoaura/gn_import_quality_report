@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rapport de synthèse — {{ nom_source }}</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Plotly.js chargé une seule fois pour tous les graphiques du rapport -->
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
+
+<!-- jQuery + DataTables (tableaux interactifs : validation, doublons) -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+<style>
+{{ inline_css | safe }}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <header class="report-header">
+    <img src="{{ logo_url }}" alt="Logo Pôle vertébrés">
+    <div class="titles">
+      <h1>Fiche récapitulative des données importées</h1>
+      <p class="subtitle">Rapport de synthèse des données — {{ nom_source }}</p>
+      <p class="meta">{{ author }} · Date d'édition : {{ date_edition }}</p>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <p class="toc-title">Sommaire</p>
+    <ol>
+      <li><a href="#s1">1. Informations générales</a></li>
+      <li><a href="#s2">2. Répartition temporelle</a></li>
+      <li><a href="#s3">3. Répartition spatiale</a></li>
+      <li><a href="#s4">4. Répartition taxonomique</a></li>
+      <li><a href="#s5">5. Métadonnées</a></li>
+      <li><a href="#s6">6. Validation des données</a></li>
+      <li><a href="#s7">7. Analyse des doublons</a></li>
+      <li><a href="#s8">8. Espèces exotiques envahissantes</a></li>
+    </ol>
+  </nav>
+
+  <main class="content">
+
+    <p class="intro">
+      Ce rapport fournit un récapitulatif des données récemment importées dans la base de données de
+      l'ORB. Il présente une série d'indicateurs clés ainsi que des visualisations qui permettent de
+      mieux appréhender les répartitions temporelle, spatiale et taxonomique des données, ainsi que
+      les métadonnées associées.
+    </p>
+    <p class="intro">
+      Ce document contribue au processus de validation des données : il permet aux contributeurs de
+      vérifier la cohérence et l'exactitude des informations fournies, afin de détecter d'éventuelles
+      erreurs, incohérences ou lacunes.
+    </p>
+    <p class="contact-callout">
+      Si vous constatez des erreurs ou incohérences dans les données intégrées, ou si vous avez des
+      interrogations, n'hésitez pas à nous contacter — {{ contact_email }}
+    </p>
+
+    <!-- 1. INFORMATIONS GENERALES ============================================ -->
+    <section class="report-section" id="s1">
+      <div class="section-heading"><span class="num">1</span><h2>Informations générales</h2></div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><span class="kpi-value">{{ nb_obs | fmt_num }}</span><span class="kpi-label">Données</span></div>
+        <div class="kpi-card"><span class="kpi-value">{{ nb_taxon | fmt_num }}</span><span class="kpi-label">Taxons (espèces comprises)</span></div>
+        <div class="kpi-card"><span class="kpi-value">{{ nb_esp | fmt_num }}</span><span class="kpi-label">Espèces</span></div>
+        <div class="kpi-card"><span class="kpi-value">{{ nb_jdd | fmt_num }}</span><span class="kpi-label">Jeux de données</span></div>
+        <div class="kpi-card"><span class="kpi-value">{{ nb_ca | fmt_num }}</span><span class="kpi-label">Cadres d'acquisition</span></div>
+      </div>
+    </section>
+
+    <!-- 2. REPARTITION TEMPORELLE ============================================= -->
+    <section class="report-section" id="s2">
+      <div class="section-heading"><span class="num">2</span><h2>Répartition temporelle</h2></div>
+      <p class="section-intro">
+        Distribution des données au fil du temps. Les pics peuvent correspondre à des campagnes
+        particulières ou à des erreurs de saisie ; un « trou » dans la distribution peut indiquer une
+        période non ou mal renseignée. Vous pouvez zoomer sur une période via le curseur sous chaque
+        graphique.
+      </p>
+      {% if show_data_mois_hors_plage %}
+      <div class="alert">
+        Attention : <strong> {{ nb_data_mois_hors_plage | fmt_num }} </strong> donnée(s) semblent antérieures à l'année {{ config.ANNEE_MIN_VALIDE if config is defined else 1001 }}
+        et ont été exclues du graphique ci-dessus (dates : {{ dates_mois_hors_plage | join(', ') }}).
+      </div>
+      {% endif %}
+      <h3 class="subsection">Nombre de données par an</h3>
+      <div class="chart-block">{{ chart_annee | safe if chart_annee else "<p class='table-empty'>Pas de données temporelles.</p>" | safe }}</div>
+      <h3 class="subsection">Nombre de données par mois</h3>
+      <div class="chart-block">{{ chart_mois | safe if chart_mois else "<p class='table-empty'>Pas de données temporelles.</p>" | safe }}</div>
+    </section>
+
+    <!-- 3. REPARTITION SPATIALE ================================================ -->
+    <section class="report-section" id="s3">
+      <div class="section-heading"><span class="num">3</span><h2>Répartition spatiale</h2></div>
+      <p class="section-intro">
+        Localisation des données : zone d'étude, éventuels points hors périmètre, sans géométrie ou
+        avec des altitudes incohérentes. Cliquez sur les mailles ou les points pour plus de détails.
+      </p>
+
+      <h3 class="subsection">Périmètre géographique (maillage 5×5 km)</h3>
+      <div class="map-block">{{ map_maillage | safe }}</div>
+
+      {% if show_data_hors_regions %}
+      <h3 class="subsection">Données hors région Auvergne-Rhône-Alpes</h3>
+      <div class="alert">
+        Attention, il semblerait qu'il y ait <strong>{{ nb_data_hors_regions | fmt_num }}</strong>
+        donnée(s) en dehors de la région. Merci de vérifier la cohérence de vos données et de nous
+        faire un retour.
+      </div>
+      <div class="map-block">{{ map_hors_regions | safe }}</div>
+      {% endif %}
+
+      <h3 class="subsection">Types de géométries</h3>
+      <div class="chart-block">{{ chart_type_geom | safe if chart_type_geom else "<p class='table-empty'>Pas de données.</p>" | safe }}</div>
+
+      <h3 class="subsection">Répartition des altitudes</h3>
+      {% if show_data_hors_altitude %}
+      <div class="alert">
+        Attention, il semblerait qu'il y ait <strong>{{ nb_data_hors_altitude | fmt_num }}</strong>
+        donnée(s) hors des classes d'altitudes de la région. Merci de vérifier la cohérence de vos
+        données et de nous faire un retour.
+      </div>
+      {% endif %}
+      <div class="chart-block">{{ chart_altitudes | safe if chart_altitudes else "<p class='table-empty'>Pas de données.</p>" | safe }}</div>
+    </section>
+
+    <!-- 4. REPARTITION TAXONOMIQUE ============================================= -->
+    <section class="report-section" id="s4">
+      <div class="section-heading"><span class="num">4</span><h2>Répartition par groupe taxonomique</h2></div>
+      <p class="section-intro">
+        Répartition des données et des espèces par groupe taxonomique, et part relative de chaque
+        niveau taxonomique (espèce, genre, famille…) dans le lot importé.
+      </p>
+      <h3 class="subsection">Nombre d'espèces par groupe taxonomique</h3>
+      <div class="chart-block">{{ chart_esp_taxo | safe if chart_esp_taxo else "<p class='table-empty'>Pas de données.</p>" | safe }}</div>
+      <h3 class="subsection">Nombre de données par groupe taxonomique</h3>
+      <div class="chart-block">{{ chart_data_taxo | safe if chart_data_taxo else "<p class='table-empty'>Pas de données.</p>" | safe }}</div>
+      <h3 class="subsection">Tableau : répartition taxonomique</h3>
+      <p class="section-intro">
+        Tableau indicatif : part et nombre de données importées par niveau taxonomique, comparés à la
+        totalité de la base de données — utile pour détecter d'éventuelles erreurs de rattachement.
+      </p>
+      {{ tab_rang_tax | safe }}
+    </section>
+
+    <!-- 5. METADONNEES ========================================================== -->
+    <section class="report-section" id="s5">
+      <div class="section-heading"><span class="num">5</span><h2>Répartition en fonction des métadonnées</h2></div>
+      <p class="section-intro">Liste des cadres d'acquisition et jeux de données correspondants.</p>
+      <h3 class="subsection">Cadre(s) d'acquisition</h3>
+      {{ tab_ca | safe }}
+      <h3 class="subsection">Jeu(x) de données</h3>
+      {{ tab_jdd | safe }}
+    </section>
+
+    <!-- 6. VALIDATION ============================================================ -->
+    <section class="report-section" id="s6">
+      <div class="section-heading"><span class="num">6</span><h2>Validation des données</h2></div>
+      <p class="section-intro">
+        Les données sont validées dans la base régionale sans tenir compte du niveau de validation du
+        fournisseur.
+      </p>
+      <div class="chart-block">{{ chart_validation | safe if chart_validation else "<p class='table-empty'>Pas de données de validation.</p>" | safe }}</div>
+      {% if show_validation %}
+      <h3 class="subsection">Données à revoir</h3>
+      <p class="section-intro">
+        Suite au processus de validation, <strong>{{ nb_validation | fmt_num }}</strong> donnée(s) sont
+        à revoir (données douteuses, invalides ou dont la validation n'est pas réalisable).
+      </p>
+      {{ tab_validation | safe }}
+      {% endif %}
+    </section>
+
+    <!-- 7. DOUBLONS =============================================================== -->
+    <section class="report-section" id="s7">
+      <div class="section-heading"><span class="num">7</span><h2>Analyse des potentiels doublons</h2></div>
+      <p class="section-intro">
+        Une analyse est réalisée pour identifier des données potentiellement doublonnées. 
+        Ainsi les données saisies au même endroit, à la même date, avec le même observateur,
+        le même nombre d’individue, la même méthode d’observation
+        ainsi que le même sexe sont considérées comme étant potentiellement en double.<br><br>
+
+        On distingue deux types de doublons, ceux au sein du même lot de données fourni et ceux avec d'autres sources de données.
+
+      </p>
+      <h3 class="subsection">Doublons avec d'autres sources de données</h3>
+      {% if show_doublon_source %}
+      
+      <p class="section-intro">
+        Il semblerait que <strong>{{ tab_source_doublon | length }}</strong> source(s) partagent
+        potentiellement des données en doublon. Cela peut provenir : de problèmes dans la circulation
+        des données (UUID absent ou régénéré), d'une double saisie dans des outils différents, de
+        saisies par des personnes différentes présentes au même endroit, ou de faux doublons.
+      </p>
+      {{ tab_source_doublon | safe }}
+      {% endif %}
+
+      <h3 class="subsection">Doublons potentiels au sein du lot fourni</h3>
+      {% if show_doublon %}
+      
+      <p class="section-intro">
+        <strong>{{ nb_doublon | fmt_num }}</strong> donnée(s) semblent potentiellement être des
+        doublons. Merci de les vérifier et de nous transmettre les éventuelles corrections.
+      </p>
+      {{ tab_doublon | safe }}
+      {{ doublon_csv_link | safe }}
+      <div class="map-block">{{ map_doublon | safe }}</div>
+      {% else %}
+      <div class="alert alert-ok">
+        Parmi les {{ nb_obs | fmt_num }} données partagées, aucune ne semble être doublonnée.
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- 8. EEE ====================================================================== -->
+    <section class="report-section" id="s8">
+      <div class="section-heading"><span class="num">8</span><h2>Espèces Exotiques Envahissantes (EEE)</h2></div>
+      <p class="section-intro">
+        Répartition et statut des EEE importées lors du dernier lot de données, croisées avec leur
+        secteur de présence historique afin de déceler d'éventuelles nouvelles occurrences hors de leur
+        zone connue.
+      </p>
+      {% if show_eee %}
+      <div class="alert">
+        Sur les données analysées, <strong>{{ nb_nouvelles_eee }}</strong> espèce(s) sont nouvellement
+        observées hors de leur secteur de présence connu.
+      </div>
+      <h3 class="subsection">Tableau de synthèse des EEE observées</h3>
+      {{ tab_eee | safe }}
+      <h3 class="subsection">Carte de répartition des EEE</h3>
+      <div class="map-block">{{ map_eee | safe }}</div>
+      {% else %}
+      <div class="alert alert-ok">Aucune nouvelle espèce exotique envahissante observée dans la région.</div>
+      {% endif %}
+    </section>
+
+    <footer class="report-footer">
+      Rapport généré automatiquement — {{ author }} — {{ date_edition }}
+    </footer>
+
+  </main>
+</div>
+</body>
+</html>
