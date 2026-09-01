@@ -161,6 +161,17 @@ data.data_eee_points = pd.DataFrame({
     "lon": [3.9, 4.1],
 })
 
+data.data_taille_geom = pd.DataFrame({
+    "type_geom": ["Lignes"] * 5 + ["Polygones"] * 6,
+    "classe_taille": [
+        "< 100 m", "100 m - 1 km", "1 - 5 km", "5 - 20 km", "> 20 km",
+        "< 0,1 ha", "0,1 - 1 ha", "1 - 10 ha", "10 - 100 ha", "100 - 2500 ha", "> 2500 ha",
+    ],
+    "classe_order": [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6],
+    "imprecise": [False, False, False, False, True, False, False, False, False, False, True],
+    "nb_data": [120, 340, 210, 60, 8, 900, 1500, 620, 180, 40, 5],
+})
+
 # -- Construction du contexte + rendu template --------------------------------
 
 logger.info("Construction du contexte de test...")

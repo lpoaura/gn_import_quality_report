@@ -166,3 +166,24 @@ def chart_altitudes(df: pd.DataFrame, div_id: str = "chart_altitudes") -> str:
         legend=dict(title="Statut de validité"),
     )
     return _fig_to_html(fig, div_id)
+
+def chart_taille_geom(df: pd.DataFrame, unite_label: str, div_id: str) -> str:
+    """Barres horizontales (échelle log) — distribution des tailles
+    (longueur ou surface) d'un type de géométrie, en rouge au-delà du seuil
+    d'alerte configuré (section 3)."""
+    df = df.sort_values("classe_order")
+    couleurs = {False: "#0099d0", True: "#b3372c"}
+    fig = go.Figure(
+        go.Bar(
+            y=df["classe_taille"],
+            x=df["nb_data"],
+            orientation="h",
+            marker_color=[couleurs[bool(v)] for v in df["imprecise"]],
+            hovertemplate="Nombre de données : %{x:,.0f}<extra></extra>",
+        )
+    )
+    fig.update_layout(
+        xaxis=dict(title=f"Nombre de données (échelle log) — {unite_label}", type="log"),
+        yaxis=dict(title="Classe de taille"),
+    )
+    return _fig_to_html(fig, div_id)

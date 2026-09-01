@@ -104,6 +104,19 @@ def _build_context(data: SourceReportData) -> dict:
         if not data.data_type_geom.empty
         else ""
     )
+    lignes_df = data.data_taille_geom[data.data_taille_geom.get("type_geom") == "Lignes"] if not data.data_taille_geom.empty else pd.DataFrame()
+    polygones_df = data.data_taille_geom[data.data_taille_geom.get("type_geom") == "Polygones"] if not data.data_taille_geom.empty else pd.DataFrame()
+    context["chart_taille_lignes"] = (
+        charts.chart_taille_geom(lignes_df, "longueur", "chart_taille_lignes") if not lignes_df.empty else ""
+    )
+    context["chart_taille_polygones"] = (
+        charts.chart_taille_geom(polygones_df, "surface", "chart_taille_polygones") if not polygones_df.empty else ""
+    )
+    context["show_geom_imprecise"] = data.show_geom_imprecise
+    context["nb_geom_imprecise"] = data.nb_geom_imprecise
+    context["seuil_longueur_alerte_km"] = config.SEUIL_LONGUEUR_ALERTE_KM
+    context["seuil_surface_alerte_ha"] = config.SEUIL_SURFACE_ALERTE_HA
+
     context["chart_altitudes"] = (
         charts.chart_altitudes(data.data_altitudes) if not data.data_altitudes.empty else ""
     )

@@ -120,6 +120,30 @@
 
       <h3 class="subsection">Types de géométries</h3>
       <div class="chart-block">{{ chart_type_geom | safe if chart_type_geom else "<p class='table-empty'>Pas de données.</p>" | safe }}</div>
+      <h3 class="subsection">Précision des géométries linéaires et surfaciques</h3>
+      <p class="section-intro">
+        Pour les lignes et les polygones, la taille de la géométrie donne une indication de sa
+        précision : un petit polygone correspond à un jardin ou une parcelle, alors qu'un polygone
+        aussi grand qu'une maille 5×5&nbsp;km ({{ seuil_surface_alerte_ha }} ha) n'apporte plus
+        d'information spatiale utile. Les classes en rouge dépassent le seuil configuré
+        ({{ seuil_longueur_alerte_km }} km pour les lignes, {{ seuil_surface_alerte_ha }} ha pour
+        les polygones).
+      </p>
+      {% if show_geom_imprecise %}
+      <div class="alert">
+        Attention, <strong>{{ nb_geom_imprecise | fmt_num }}</strong> donnée(s) linéaire(s) ou
+        surfacique(s) dépassent le seuil de taille jugé pertinent. Merci de vérifier la précision
+        de saisie de ces données.
+      </div>
+      {% endif %}
+      {% if chart_taille_lignes %}
+      <p><strong>Lignes — distribution des longueurs</strong></p>
+      <div class="chart-block">{{ chart_taille_lignes | safe }}</div>
+      {% endif %}
+      {% if chart_taille_polygones %}
+      <p><strong>Polygones — distribution des surfaces</strong></p>
+      <div class="chart-block">{{ chart_taille_polygones | safe }}</div>
+      {% endif %}
 
       <h3 class="subsection">Répartition des altitudes</h3>
       {% if show_data_hors_altitude %}
@@ -195,7 +219,7 @@
       {% if show_doublon_source %}
       
       <p class="section-intro">
-        Il semblerait que <strong>{{ tab_source_doublon | length }}</strong> source(s) partagent
+        Il semblerait que <strong>{{ nb_source_doublon | fmt_num }}</strong> source(s) partagent
         potentiellement des données en doublon. Cela peut provenir : de problèmes dans la circulation
         des données (UUID absent ou régénéré), d'une double saisie dans des outils différents, de
         saisies par des personnes différentes présentes au même endroit, ou de faux doublons.

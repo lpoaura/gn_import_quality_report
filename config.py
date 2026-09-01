@@ -51,6 +51,10 @@ class Config:
     # Nom de la région utilisée pour les filtres spatiaux (cf. ILIKE '%Auvergne-Rh%ne-Alpes%')
     REGION_NAME_PATTERN: str = os.getenv("REGION_NAME_PATTERN", "%Auvergne-Rh%ne-Alpes%")
     ANNEE_MIN_VALIDE: int = int(os.getenv("ANNEE_MIN_VALIDE", "1677"))
+        # Seuils au-delà desquels une géométrie linéaire/surfacique est jugée
+    # trop imprécise pour être exploitable (repère : maille M5 = 5x5km = 2500 ha)
+    SEUIL_LONGUEUR_ALERTE_KM: float = float(os.getenv("SEUIL_LONGUEUR_ALERTE_KM", "20"))
+    SEUIL_SURFACE_ALERTE_HA: float = float(os.getenv("SEUIL_SURFACE_ALERTE_HA", "2500"))
 
     # -- Chemins ---------------------------------------------------------------------
     OUTPUT_DIR: Path = field(default_factory=lambda: Path(os.getenv("OUTPUT_DIR", str(BASE_DIR / "output"))))

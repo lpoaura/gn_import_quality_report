@@ -463,6 +463,69 @@ def q_data_type_geom():
         """
     )
 
+def q_data_taille_geom():
+    """Classes de taille (longueur/surface) des géométries linéaires et
+    surfaciques — permet de repérer des géométries trop grossières
+    (ex : donnée saisie à l'échelle de la maille plutôt qu'au point réel).
+    Section 3."""
+    seuil_long_m = config.SEUIL_LONGUEUR_ALERTE_KM * 1000
+    seuil_surf_m2 = config.SEUIL_SURFACE_ALERTE_HA * 10000
+    return _ids_query(
+        f"""
+        WITH geoms AS (
+            SELECT
+                CASE
+                    WHEN ST_GeometryType(s.the_geom_local) IN ('ST_LineString','ST_MultiLineString') THEN 'Lignes'
+                    WHEN ST_GeometryType(s.the_geom_local) IN ('ST_Polygon','ST_MultiPolygon') THEN 'Polygones'
+                END AS type_geom,
+                CASE
+                    WHEN ST_GeometryType(s.the_geom_local) IN ('ST_LineString','ST_MultiLineString')
+                        THEN ST_Length(s.the_geom_local)
+                    WHEN ST_GeometryType(s.the_geom_local) IN ('ST_Polygon','ST_MultiPolygon')
+                        THEN ST_Area(s.the_geom_local)
+                END AS taille
+            FROM gn_synthese.synthese s
+            WHERE concat(s.id_source, '_', s.id_import) IN :ids
+              AND ST_GeometryType(s.the_geom_local) IN
+                  ('ST_LineString','ST_MultiLineString','ST_Polygon','ST_MultiPolygon')
+        )
+        SELECT
+            type_geom,
+            CASE
+                WHEN type_geom = 'Lignes' AND taille < 100 THEN '< 100 m'
+                WHEN type_geom = 'Lignes' AND taille < 1000 THEN '100 m - 1 km'
+                WHEN type_geom = 'Lignes' AND taille < 5000 THEN '1 - 5 km'
+                WHEN type_geom = 'Lignes' AND taille < {seuil_long_m} THEN '5 - {config.SEUIL_LONGUEUR_ALERTE_KM:g} km'
+                WHEN type_geom = 'Lignes' THEN '> {config.SEUIL_LONGUEUR_ALERTE_KM:g} km'
+                WHEN type_geom = 'Polygones' AND taille < 1000 THEN '< 0,1 ha'
+                WHEN type_geom = 'Polygones' AND taille < 10000 THEN '0,1 - 1 ha'
+                WHEN type_geom = 'Polygones' AND taille < 100000 THEN '1 - 10 ha'
+                WHEN type_geom = 'Polygones' AND taille < 1000000 THEN '10 - 100 ha'
+                WHEN type_geom = 'Polygones' AND taille < {seuil_surf_m2} THEN '100 - {config.SEUIL_SURFACE_ALERTE_HA:g} ha'
+                WHEN type_geom = 'Polygones' THEN '> {config.SEUIL_SURFACE_ALERTE_HA:g} ha'
+            END AS classe_taille,
+            CASE
+                WHEN type_geom = 'Lignes' AND taille < 100 THEN 1
+                WHEN type_geom = 'Lignes' AND taille < 1000 THEN 2
+                WHEN type_geom = 'Lignes' AND taille < 5000 THEN 3
+                WHEN type_geom = 'Lignes' AND taille < {seuil_long_m} THEN 4
+                WHEN type_geom = 'Lignes' THEN 5
+                WHEN type_geom = 'Polygones' AND taille < 1000 THEN 1
+                WHEN type_geom = 'Polygones' AND taille < 10000 THEN 2
+                WHEN type_geom = 'Polygones' AND taille < 100000 THEN 3
+                WHEN type_geom = 'Polygones' AND taille < 1000000 THEN 4
+                WHEN type_geom = 'Polygones' AND taille < {seuil_surf_m2} THEN 5
+                WHEN type_geom = 'Polygones' THEN 6
+            END AS classe_order,
+            (taille >= CASE WHEN type_geom = 'Lignes' THEN {seuil_long_m} ELSE {seuil_surf_m2} END) AS imprecise,
+            COUNT(*) AS nb_data
+        FROM geoms
+        WHERE type_geom IS NOT NULL
+        GROUP BY type_geom, classe_taille, classe_order, imprecise
+        ORDER BY type_geom, classe_order;
+        """
+    )
+
 
 # ---------------------------------------------------------------------------
 # 8. Espèces Exotiques Envahissantes (EEE)

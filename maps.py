@@ -29,8 +29,18 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_CENTER = (45.444, 3.75)  # Centre approximatif de l'Auvergne-Rhône-Alpes
-TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-TILES_ATTR = "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+
+# Option 1 — OSM standard (le plus simple, le plus connu)
+#TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+#TILES_ATTR = "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+
+# Option 2 — CartoDB Voyager (fond plus doux, très lisible, gratuit en usage raisonnable)
+TILES = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+TILES_ATTR = "&copy; OpenStreetMap contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>"
+
+# Option 3 — Esri World Street Map (aucune clé requise, bonne fiabilité)
+# TILES = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
+# TILES_ATTR = "Tiles &copy; Esri"
 
 
 def _empty_map(message: str = "Pas de données à afficher") -> str:

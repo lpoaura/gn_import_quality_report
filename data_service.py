@@ -69,6 +69,7 @@ class SourceReportData:
     data_hors_regions: pd.DataFrame = field(default_factory=pd.DataFrame)
     data_altitudes: pd.DataFrame = field(default_factory=pd.DataFrame)
     data_type_geom: pd.DataFrame = field(default_factory=pd.DataFrame)
+    data_taille_geom: pd.DataFrame = field(default_factory=pd.DataFrame)
 
     # EEE (section 8)
     data_eee_synthese: pd.DataFrame = field(default_factory=pd.DataFrame)
@@ -100,6 +101,16 @@ class SourceReportData:
     @property
     def show_data_mois_hors_plage(self) -> bool:
         return self.nb_data_mois_hors_plage > 0
+
+    @property
+    def nb_geom_imprecise(self) -> int:
+        if self.data_taille_geom.empty or "imprecise" not in self.data_taille_geom:
+            return 0
+        return int(self.data_taille_geom.loc[self.data_taille_geom["imprecise"], "nb_data"].sum())
+
+    @property
+    def show_geom_imprecise(self) -> bool:
+        return self.nb_geom_imprecise > 0
 
     @property
     def nb_nouvelles_eee(self) -> int:
@@ -189,6 +200,7 @@ def load_source_data(conn: Connection, nom_source: str, list_id: list[str]) -> S
         data.nb_data_hors_altitude = int(incorrect["tot_data"].sum())
 
     data.data_type_geom = _safe_fetch(conn, "data_type_geom", q.q_data_type_geom, ids_params)
+    data.data_taille_geom = _safe_fetch(conn, "data_taille_geom", q.q_data_taille_geom, ids_params)
 
     # NB : la synthèse EEE utilise volontairement une liste d'imports fixe
     eee_params = {"ids": list(config.EEE_SOURCE_IDS), "region_pattern": config.REGION_NAME_PATTERN}
