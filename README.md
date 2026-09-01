@@ -50,25 +50,6 @@ mal formé, etc.) est journalisée et n'interrompt pas la génération des autre
 rapports (`try/except` par requête dans `data_service._safe_fetch`, et par
 rapport dans `main.py`).
 
-## Correspondance R → Python
-
-| R (avant)                                   | Python (après)                                   |
-|----------------------------------------------|---------------------------------------------------|
-| `RPostgreSQL` / `DBI`                        | `SQLAlchemy` + `psycopg2`                          |
-| `dbGetQuery(conn, sql_concatene)`            | `pandas.read_sql(text(sql), conn, params=...)`     |
-| Concaténation de `list_id` dans le SQL       | Bind parameter `IN :ids` (expanding), sans injection SQL |
-| `dplyr` / `tidyverse`                        | `pandas`                                            |
-| `plotly` (R)                                 | `plotly` (Python), `fig.to_html(...)`               |
-| `leaflet`                                    | `folium` (+ `branca` pour les échelles de couleur)  |
-| `sf` / `st_read`                              | Géométrie récupérée en GeoJSON / lat-lon directement via PostGIS (`ST_AsGeoJSON`, `ST_X`, `ST_Y`) — pas de dépendance GDAL/geopandas |
-| `kableExtra::kable_styling()`                 | `tables.render_static_table()`                      |
-| `DT::datatable()`                             | `tables.render_interactive_table()` (DataTables.js) |
-| `base64enc::base64encode()`                    | `formatting.csv_download_link()`                    |
-| `stringi::stri_trans_general()` + `gsub()`     | `formatting.sanitize_filename()` (Unidecode + regex)|
-| `rmarkdown::render(rapport.Rmd, params=...)`   | `report_generator.generate_report()` + Jinja2       |
-| `print()` / `cat()`                            | module `logging` (console + fichier tournant, niveaux) |
-| Script arrêté à la première erreur              | Erreurs journalisées, traitement des sources suivantes poursuivi |
-
 ## Installation
 
 ```bash
@@ -105,9 +86,7 @@ nettoyé (accents supprimés, espaces → `_`).
   lire `additional_data->>'desc_source'` dans `gn_imports.t_imports`. À adapter
   impérativement à votre configuration.
 - **`EEE_SOURCE_IDS`** : liste fixe d'`id_source_news` utilisée pour la
-  synthèse EEE (section 8), reprise telle quelle du `rapport.Rmd` d'origine
-  (indépendante de la source en cours de traitement). Externalisée en config
-  pour rester ajustable sans toucher au code.
+  synthèse EEE (section 8). Externalisée en config pour rester ajustable sans toucher au code.
 - La table `grafana.t_orb_eee_aura_2025` (EEE autorisées en AuRA) doit exister,
   comme dans la version R.
 
