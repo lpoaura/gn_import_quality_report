@@ -170,7 +170,9 @@ def _build_context(data: SourceReportData) -> dict:
     context["tab_validation"] = tables.render_interactive_table(data.data_validation)
 
     # -- section 7 : doublons -----------------------------------------------
+    context["nb_source_doublon"] = len(data.source_doublon)
     context["tab_source_doublon"] = tables.render_static_table(data.source_doublon)
+    
 
     doublon_display = data.data_doublon.copy()
     if not doublon_display.empty:
