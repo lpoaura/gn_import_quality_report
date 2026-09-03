@@ -23,7 +23,7 @@ import folium
 import pandas as pd
 from folium.plugins import MarkerCluster
 
-from formatting import format_number
+from .formatting import format_number
 
 logger = logging.getLogger(__name__)
 

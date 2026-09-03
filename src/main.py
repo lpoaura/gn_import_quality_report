@@ -22,12 +22,12 @@ import sys
 import time
 from pathlib import Path
 
-from config import config
-from data_service import fetch_liste_rapports
-from db import check_connection, get_connection, get_engine, refresh_materialized_views
-from formatting import parse_id_list
-from logging_config import setup_logging
-from report_generator import generate_report
+from .config import config
+from .data_service import fetch_liste_rapports
+from .db import check_connection, get_connection, get_engine, refresh_materialized_views
+from .formatting import parse_id_list
+from .logging_config import setup_logging
+from .report_generator import generate_report
 
 
 def parse_args() -> argparse.Namespace:

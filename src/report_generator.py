@@ -18,12 +18,12 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import Connection
 
-import charts
-import maps
-import tables
-from config import config
-from data_service import SourceReportData, load_source_data
-from formatting import csv_download_link, format_number, format_percent, sanitize_filename
+import .charts as charts
+import .maps as maps
+import .tables as tables
+from .config import config
+from .data_service import SourceReportData, load_source_data
+from .formatting import csv_download_link, format_number, format_percent, sanitize_filename
 
 logger = logging.getLogger(__name__)
 

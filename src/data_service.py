@@ -22,8 +22,8 @@ import pandas as pd
 from sqlalchemy import Connection
 
 import queries as q
-from config import config
-from db import fetch_df
+from .config import config
+from .db import fetch_df
 
 logger = logging.getLogger(__name__)
 

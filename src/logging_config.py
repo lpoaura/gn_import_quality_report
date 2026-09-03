@@ -13,7 +13,7 @@ import logging
 import logging.handlers
 import sys
 
-from config import config
+from .config import config
 
 
 def setup_logging() -> logging.Logger:

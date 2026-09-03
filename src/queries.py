@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from sqlalchemy import bindparam, text
 
-from config import config
+from .config import config
 
 
 def _ids_query(sql: str):

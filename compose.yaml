@@ -1,0 +1,7 @@
+services:
+  importreporter:
+    build: .
+    image: lpoaura/importgenerator:latest
+    volumes:
+      - ./output:$(OUTPUT_DIR)
+      - ./logs:$(LOGS_DIR)

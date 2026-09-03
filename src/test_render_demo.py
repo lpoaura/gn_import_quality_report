@@ -16,10 +16,10 @@ import datetime as dt
 
 import pandas as pd
 
-from data_service import SourceReportData
-from logging_config import setup_logging
-from report_generator import _build_context, _jinja_env
-from config import config
+from .data_service import SourceReportData
+from .logging_config import setup_logging
+from .report_generator import _build_context, _jinja_env
+from .config import config
 
 logger = setup_logging()
 

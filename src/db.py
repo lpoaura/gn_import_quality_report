@@ -21,7 +21,7 @@ import pandas as pd
 from sqlalchemy import Connection, Engine, create_engine, text
 from sqlalchemy.engine import URL
 
-from config import config
+from .config import config
 
 logger = logging.getLogger(__name__)
 
