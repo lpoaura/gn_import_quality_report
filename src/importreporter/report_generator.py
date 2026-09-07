@@ -13,14 +13,16 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
+import pandas as pd
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import Connection
 
-import .charts as charts
-import .maps as maps
-import .tables as tables
+from . import charts as charts
+from . import maps as maps
+from . import tables as tables
+
 from .config import config
 from .data_service import SourceReportData, load_source_data
 from .formatting import csv_download_link, format_number, format_percent, sanitize_filename

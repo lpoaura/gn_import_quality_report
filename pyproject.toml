@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "importreporter"
+version = "0.1.0"
+description = "Génération de rapports de synthèse des données importées GeoNature"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "ORB Auvergne-Rhône-Alpes" }]
+
+# Reprend exactement le contenu de requirements.txt.
+# Une fois ce fichier en place, requirements.txt n'est plus nécessaire
+# (vous pouvez le garder un temps en doublon si ça vous rassure).
+dependencies = [
+    "SQLAlchemy>=2.0,<3.0",
+    "psycopg2-binary>=2.9",
+    "pandas>=2.0",
+    "plotly>=5.20",
+    "folium>=0.16",
+    "branca>=0.7",
+    "Jinja2>=3.1",
+    "Unidecode>=1.3",
+    "python-dotenv>=1.0",
+]
+
+# Crée une commande "importreporter" utilisable directement après
+# `pip install .`, qui appelle la fonction main() de main.py.
+# Équivalent de : python -m importreporter.main
+[project.scripts]
+importreporter = "importreporter.main:main"
+
+# Indique où se trouve le code source (dossier src/)
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# IMPORTANT : par défaut, un package Python n'embarque que les fichiers .py.
+# Cette ligne force l'inclusion de templates/*.html et static/*.css dans le
+# paquet installé — sans elle, report_template.html et report.css seraient
+# introuvables une fois le package installé.
+[tool.setuptools.package-data]
+importreporter = ["templates/*.html", "static/*.css"]

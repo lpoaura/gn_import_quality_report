@@ -2,6 +2,8 @@ services:
   importreporter:
     build: .
     image: lpoaura/importgenerator:latest
+    env_file:
+      - .env
     volumes:
-      - ./output:$(OUTPUT_DIR)
-      - ./logs:$(LOGS_DIR)
+      - ./output:${OUTPUT_DIR}
+      - ./logs:${LOG_DIR}

@@ -21,7 +21,7 @@ from typing import Any
 import pandas as pd
 from sqlalchemy import Connection
 
-import queries as q
+from . import queries as q
 from .config import config
 from .db import fetch_df
 
