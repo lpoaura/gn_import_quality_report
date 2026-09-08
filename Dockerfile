@@ -2,7 +2,9 @@
 FROM python:3.13-slim
 # ---Déclarations d'environnement ----------------
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    OUTOUT_DIR=/home/user/output \
+    LOG_DIR=/home/user/logs
 
 WORKDIR /home/user
 # ---récupération des dossiers ----------------
