@@ -5,5 +5,5 @@ services:
     env_file:
       - .env
     volumes:
-      - ./output:${OUTPUT_DIR}
-      - ./logs:${LOG_DIR}
+      - ${LOCAL_OUTPUT_DIR:-./output}:/home/user/output
+      - ${LOCAL_LOG_DIR:-./logs}:/home/user/logs
