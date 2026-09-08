@@ -3,13 +3,14 @@ main.py
 =======
 Point d'entrée du programme. 
 
-  1. Rafraîchit les vues matérialisées `grafana.mv_*`
+  1. Rafraîchit les vues matérialisées `grafana.mv_*` (si demandé via --refresh-mv)
   2. Récupère la liste des sources à traiter (`gn_imports.v_c_rapport_generated`)
   3. Génère un rapport HTML autonome pour chaque source
   4. Journalise le déroulement complet et résume le résultat final
 
 Usage :
     python main.py
+    python main.py --refresh-mv
     python main.py --source-filter "Association naturaliste"
     python main.py --output-dir ./mes_rapports --log-level DEBUG
 """
@@ -41,8 +42,9 @@ def parse_args() -> argparse.Namespace:
         help="Ne génère que les rapports dont le nom de source contient ce texte (insensible à la casse)",
     )
     parser.add_argument(
-        "--skip-refresh", action="store_true",
-        help="Ne rafraîchit pas les vues matérialisées avant génération (utile en développement)",
+        "--refresh-mv", action="store_true",
+        help="Rafraîchit les vues matérialisées grafana.mv_* avant génération "
+             "(désactivé par défaut : nos instances sont déjà actualisées régulièrement)",
     )
     parser.add_argument("--log-level", type=str, default=None, help="Surcharge le niveau de log (DEBUG, INFO, ...)")
     return parser.parse_args()
@@ -64,14 +66,16 @@ def main() -> int:
         logger.error("Arrêt du programme : connexion à la base de données impossible.")
         return 1
 
-    if not args.skip_refresh:
+    if args.refresh_mv:
         try:
             refresh_materialized_views(engine, config.MATERIALIZED_VIEWS)
         except Exception:
             logger.error("Arrêt du programme suite à l'échec du rafraîchissement des vues matérialisées.")
             return 1
     else:
-        logger.warning("Rafraîchissement des vues matérialisées ignoré (--skip-refresh)")
+        logger.info(
+            "Rafraîchissement des vues matérialisées ignoré (défaut) — utilisez --refresh-mv pour le forcer"
+        )
 
     with get_connection(engine) as conn:
         tableau_rapport = fetch_liste_rapports(conn)
@@ -119,4 +123,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

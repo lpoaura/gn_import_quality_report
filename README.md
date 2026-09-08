@@ -58,8 +58,8 @@ python main.py
 # Ne générer que les sources dont le nom contient un texte donné
 python main.py --source-filter "Cantal"
 
-# Développement : sans rafraîchir les vues matérialisées, logs en DEBUG
-python main.py --skip-refresh --log-level DEBUG
+# Développement : rafraîchir les vues matérialisées, logs en DEBUG
+python main.py --refresh-mv --log-level DEBUG
 
 # Prévisualiser le rendu SANS base de données (données factices)
 python test_render_demo.py
