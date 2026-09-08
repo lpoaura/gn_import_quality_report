@@ -239,11 +239,14 @@ def _build_context(data: SourceReportData) -> dict:
     return context
 
 
-def generate_report(conn: Connection, nom_source: str, list_id: list[str], output_dir: Path | None = None) -> Path:
+def generate_report(conn: Connection, nom_source: str, list_id: list[str], output_dir: Path | None = None,  nom_fichier: str | None = None,) -> Path:
     """Génère le rapport HTML complet pour une source et retourne le chemin du fichier écrit."""
 
     output_dir = output_dir or config.OUTPUT_DIR
     logger.info("=== Génération du rapport pour « %s » ===", nom_source)
+
+
+
 
     data = load_source_data(conn, nom_source, list_id)
     context = _build_context(data)
@@ -251,7 +254,9 @@ def generate_report(conn: Connection, nom_source: str, list_id: list[str], outpu
     template = _jinja_env.get_template("report_template.html")
     html_content = template.render(**context)
 
-    filename = sanitize_filename(nom_source) + ".html"
+    base_name = nom_fichier if nom_fichier else nom_source
+    filename = sanitize_filename(base_name) + ".html"
+    
     output_path = output_dir / filename
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path.write_text(html_content, encoding="utf-8")
