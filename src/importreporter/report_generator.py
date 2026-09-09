@@ -244,6 +244,7 @@ def generate_report(conn: Connection, nom_source: str, list_id: list[str], outpu
 
     output_dir = output_dir or config.OUTPUT_DIR
     logger.info("=== Génération du rapport pour « %s » ===", nom_source)
+    logger.info("=== Nom du fichier : « %s » ===", nom_fichier)
 
 
 
@@ -257,6 +258,10 @@ def generate_report(conn: Connection, nom_source: str, list_id: list[str], outpu
     base_name = nom_fichier if nom_fichier else nom_source
     filename = sanitize_filename(base_name) + ".html"
     
+    logger.info("=== Fichier : « %s » ===", filename)
+    logger.info("=== Nom du fichier : « %s » ===", nom_fichier)
+    logger.info("=== Nom de la source : « %s » ===", nom_source)
+
     output_path = output_dir / filename
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path.write_text(html_content, encoding="utf-8")

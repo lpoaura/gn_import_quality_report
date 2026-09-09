@@ -100,13 +100,14 @@ def main() -> int:
         succes, echecs = 0, 0
         for i, row in tableau_rapport.iterrows():
             nom_source = row["desc_source"]
+            nom_fichier = row["nom_fichier"]
             list_id = parse_id_list(str(row["list_import"]))
             logger.info(
                 "Rapport [%d/%d] : « %s » -> %s (%d import(s) : %s)",
-                i + 1, len(tableau_rapport), nom_source, row["nom_fichier"], len(list_id), list_id,
+                i + 1, len(tableau_rapport), nom_source, nom_fichier, len(list_id), list_id,
             )
             try:
-                generate_report(conn, nom_source, list_id, output_dir=output_dir)
+                generate_report(conn, nom_source, list_id, output_dir=output_dir, nom_fichier=nom_fichier)
                 succes += 1
             except Exception:
                 logger.exception("Échec de la génération du rapport pour « %s »", nom_source)
