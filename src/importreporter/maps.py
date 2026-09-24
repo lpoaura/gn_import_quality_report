@@ -35,13 +35,16 @@ DEFAULT_CENTER = (45.444, 3.75)  # Centre approximatif de l'Auvergne-Rhône-Alpe
 #TILES_ATTR = "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
 
 # Option 2 — CartoDB Voyager (fond plus doux, très lisible, gratuit en usage raisonnable)
-TILES = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-TILES_ATTR = "&copy; OpenStreetMap contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>"
+#TILES = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+#TILES_ATTR = "&copy; OpenStreetMap contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>"
 
 # Option 3 — Esri World Street Map (aucune clé requise, bonne fiabilité)
 # TILES = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
 # TILES_ATTR = "Tiles &copy; Esri"
 
+# Option 4 — IGN Plan V2 standard
+TILES = "https://data.geopf.fr/wmts?&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}"
+TILES_ATTR = "IGN-F/Geoportail, IGN Plan V2"
 
 def _empty_map(message: str = "Pas de données à afficher") -> str:
     m = folium.Map(location=DEFAULT_CENTER, zoom_start=6, tiles=TILES, attr=TILES_ATTR)
