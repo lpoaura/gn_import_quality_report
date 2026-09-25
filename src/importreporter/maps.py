@@ -43,7 +43,7 @@ DEFAULT_CENTER = (45.444, 3.75)  # Centre approximatif de l'Auvergne-Rhône-Alpe
 # TILES_ATTR = "Tiles &copy; Esri"
 
 # Option 4 — IGN Plan V2 standard
-TILES = "https://data.geopf.fr/wmts?&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}"
+TILES = "https://data.geopf.fr/wmts?&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}"
 TILES_ATTR = "IGN-F/Geoportail, IGN Plan V2"
 
 def _empty_map(message: str = "Pas de données à afficher") -> str:

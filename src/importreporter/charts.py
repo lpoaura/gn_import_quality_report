@@ -140,7 +140,7 @@ def chart_donut(df, label_col, value_col, div_id, colors=None):
 
 
 def chart_altitudes(df: pd.DataFrame, div_id: str = "chart_altitudes") -> str:
-    """Barres horizontales empilées (échelle log) — répartition des altitudes
+    """Barres horizontales empilées — répartition des altitudes
     (section 3)."""
     df = df.sort_values("classe_altitude_order")
     fig = go.Figure()
@@ -161,14 +161,15 @@ def chart_altitudes(df: pd.DataFrame, div_id: str = "chart_altitudes") -> str:
         )
     fig.update_layout(
         barmode="stack",
-        xaxis=dict(title="Nombre de données (échelle log)", type="log"),
+        #xaxis=dict(title="Nombre de données (échelle log)", type="log"),
+        xaxis=dict(title="Nombre de données"),
         yaxis=dict(title="Classe d'altitude en mètres"),
         legend=dict(title="Statut de validité"),
     )
     return _fig_to_html(fig, div_id)
 
 def chart_taille_geom(df: pd.DataFrame, unite_label: str, div_id: str) -> str:
-    """Barres horizontales (échelle log) — distribution des tailles
+    """Barres horizontales — distribution des tailles
     (longueur ou surface) d'un type de géométrie, en rouge au-delà du seuil
     d'alerte configuré (section 3)."""
     df = df.sort_values("classe_order")
@@ -183,7 +184,8 @@ def chart_taille_geom(df: pd.DataFrame, unite_label: str, div_id: str) -> str:
         )
     )
     fig.update_layout(
-        xaxis=dict(title=f"Nombre de données (échelle log) — {unite_label}", type="log"),
+        #xaxis=dict(title=f"Nombre de données (échelle log) — {unite_label}", type="log"),
+        xaxis=dict(title=f"Nombre de données - {unite_label}"),
         yaxis=dict(title="Classe de taille"),
     )
     return _fig_to_html(fig, div_id)
